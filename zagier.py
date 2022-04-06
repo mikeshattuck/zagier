@@ -91,12 +91,15 @@ def findWindmills(num):
 		if yz % 4 == 0:			
 
 			yz = yz /4
-			
+
 			y = 1
 
 			#Setting our y max value to half of the yz quantity seems to hit all of our windmills and matches our brute force
 			#solutions. Using the square root of yz was missing a few windmills. This will require further thought.
 			y_max = yz / 2
+
+			#Our y_max calculation breaks for p = 5 which we must set it to 1
+			y_max = y_max if y_max > 1 else 1
 
 			while (y <= y_max):
 
@@ -155,8 +158,8 @@ def main(argv):
 		print("Please input a number when calling zagier.py")
 		sys.exit(2)
 
-	if num % 4 != 1 or num < 3:
-		print("Please enter a valid 4k+1 number greater than 2")
+	if num % 4 != 1 or num < 5:
+		print("Please enter a valid 4k+1 number greater than 4")
 		sys.exit(2)
 	else:
 		S = findWindmills(num)
