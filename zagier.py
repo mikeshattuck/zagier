@@ -1,4 +1,6 @@
 #!/usr/bin/python
+#Author: Michael Shattuckpython
+
 import math
 import sys
 
