@@ -2,6 +2,9 @@
 import math
 import sys
 
+#This is the first involution in Zagier's one sentence proof
+#Note the two "False" values are only to initialize these flags that we may
+#set later. This should be cleaner
 def involutionI(x,y,z):
 	if x < (y-z):
 		return ([
@@ -31,6 +34,9 @@ def involutionI(x,y,z):
 		#Error?
 		return
 
+#This is the second involution in Zagier's one sentence proof
+#Note the two "False" values are only to initialize these flags that we may
+#set later. This should be cleaner
 def involutionG(x,y,z):
 	return([
 		x,
@@ -43,8 +49,8 @@ def isFixed(a,b):
 	return a[0] == b[0] and a[1] == b[1] and a[2] == b[2]
 
 def printHeader(num):
-	print"Solutions to " + str(num) + " = x^2 + 4yz"
-	print"(x,y,z)\t\t\tFixed by I\tFixed by G\tSum of Squares Solution"
+	print("Solutions to " + str(num) + " = x^2 + 4yz")
+	print("(x,y,z)\t\t\tFixed by I\tFixed by G\tSum of Squares Solution")
 
 def printWindmill(a):
 	isFixedInI = a[3]
@@ -65,60 +71,92 @@ def exists(list,w):
 def findWindmills(num):
 	windmills = []
 	x = 1
-	x_max = math.floor((num-4) ** 0.5)		#We only need to test up to (prime-4)^1/2 
+	#Since the general solution is p = x^2 + 4yz, then the largest allowable value for x is square root of (p - 4(1)(1) )
+	x_max = math.floor(math.sqrt(num-4))
 
 	while (x <= x_max):
-		yz = (num - x**2)/4					#Solve for yz in p = x^2 + 4yz
-		y = 1
-		y_max = math.floor(yz ** 1/2)
-		while (y <= y_max):
-			z = yz/y							#Solve for z since x,y are known
-			if num == x**2 + 4*y*z:
-				w = [x,y,z, False, False]		#We have our windmill w
-				wI = involutionI(x,y,z)		#Involute our windmill to a new windmill wI
-				
-				if isFixed(w,wI):			#Testing if our first windmill is fixed by the first involution
-					w[3] = True
-					wI = None
-				else:
-					w[3] = False				#It is not so the second involution is not fixed either
-					wI[3] = False
-				
+		#With our x value known, we can solve for the quantity yz as: yz = (p-x^2)/4. Using yz, we can iterate over
+		#y to find y,z pairs to test in our general solution
+		yz = int((num - x**2))
 
-				if isFixed(w, involutionG(w[0],w[1],w[2])):
-					w[4] = True
-				else:
-					w[4] = False
+		#Make sure y * z is an integer with our x value (sometimes it isn't since we are iterating on all x values between 1 and x max)
+		if yz % 4 == 0:			
 
-				if wI != None:
-					if isFixed(wI, involutionG(wI[0],wI[1],wI[2])):
-						wI[4] = True
+			yz = yz /4
+			
+			y = 1
+
+			#Setting our y max value to half of the yz quantity seems to hit all of our windmills and matches our brute force
+			#solutions. Using the square root of yz was missing a few windmills. This will require further thought.
+			y_max = yz / 2
+
+			while (y <= y_max):
+
+				z = int(yz/y)
+
+				if num == x**2 + 4*y*z:
+
+					#We have found a solution to the general equation p = x^2 + 4yz (this is a windmill)
+					w = [x,y,z, False, False]		
+					
+					#Involute our windmill to a new windmill wI
+					wI = involutionI(x,y,z)		
+
+					#Testing if our first windmill is fixed. I.e., it matches the involuted windmill
+					if isFixed(w,wI):			
+						w[3] = True		#Set fixed by I to true
+						wI = None		#Set our new involuted windmill to None so we don't add it again since it is W
+					#Else it is a new windmill (which won't be fixed since it would involute back to w)
 					else:
-						wI[4] = False
+						w[3] = False	#Set fixed by I to false (it is not fixed)			
+						wI[3] = False	#Set fixed by I to false (it is not fixed)
+					
 
-				#Add our windmill if it is not already in S
-				if exists(windmills,w) == False:
-					windmills.append(w)
+					#At this point we either have one or two new windmills to add to our list. We want to see if either
+					#of them are fixed by the second involution G which is our solution to p = a^2 + b^2
+					if isFixed(w, involutionG(w[0],w[1],w[2])):
+						w[4] = True			#Our windmill w is fixed by G
+					else:
+						w[4] = False		#Our windmill w is not fixed by G
 
-				#Add our involuted windmill if it is not already in S
-				if wI != None:
-					if exists(windmills,wI) == False:
-						windmills.append(wI)
+					if wI != None:			#Did we get a second windmill by our involution I?
+						if isFixed(wI, involutionG(wI[0],wI[1],wI[2])):		#If yes, is it fixed by G?
+							wI[4] = True									#Yes, set fixed by G flag to true
+						else:
+							wI[4] = False									#No, set fixed by G flag to false
 
-			y += 1
+					#Add our windmill w if it is not already in the set S 
+					if exists(windmills,w) == False:
+						windmills.append(w)
+
+					#Add our involuted windmill wI if it is not fixed and is not already in S
+					if wI != None:
+						if exists(windmills,wI) == False:
+							windmills.append(wI)
+
+				y += 1
 		x += 1
+
 	return windmills
 
+def main(argv):
 
-inputs = map(int,sys.argv[1:])
-input_number = inputs[0]
-if input_number % 4 != 1 or input_number < 3:
-	print "Please enter a valid 4k+1 number greater than 2"
-else:
-	S = findWindmills(input_number)
-	length = len(S)
-	print "S contains " + str(len(S)) + " windmills"
-	printHeader(input_number)
-	for w in S:
-		printWindmill(w)
+	try:
+		num = int(sys.argv[1])
+	except:
+		print("Please input a number when calling zagier.py")
+		sys.exit(2)
 
+	if num % 4 != 1 or num < 3:
+		print("Please enter a valid 4k+1 number greater than 2")
+		sys.exit(2)
+	else:
+		S = findWindmills(num)
+		length = len(S)
+		print("S contains " + str(len(S)) + " windmills")
+		printHeader(num)
+		for w in S:
+			printWindmill(w)
+
+if __name__ == "__main__":
+   main(sys.argv[1:])
