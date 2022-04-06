@@ -48,19 +48,25 @@ def involutionG(x,y,z):
 def isFixed(a,b):
 	return a[0] == b[0] and a[1] == b[1] and a[2] == b[2]
 
-def printHeader(num):
-	print("Solutions to " + str(num) + " = x^2 + 4yz")
-	print("(x,y,z)\t\t\tFixed by I\tFixed by G\tSum of Squares Solution")
+def printHeader(num, count):
+	print("Solution Set S for " + str(num) + " = x^2 + 4yz" + " contains " + str(count) + " windmills")
+	print(f"{'(x,y,z)' : <20}{'Fixed by I' : <20}{'Fixed by G' : <20}{'Solution': <20}")
 
 def printWindmill(a):
-	isFixedInI = a[3]
-	isFixedInG = a[4]
+	isFixedInI = "Yes" if a[3] == True else "No"
+	isFixedInG = "Yes" if a[4] == True else "No"
+	x = str(a[0])
+	y = str(a[1])
+	z = str(a[2])
+	point = "(" + x + "," + y + "," + z + ")"
+
 	solution = ""
 	
-	if isFixedInG == True:
+	if isFixedInG == "Yes":
 		solution = str(a[0]) + "^2 + " + str(a[1]*2) + "^2"
 	
-	print("(%d,%d,%d)" % (a[0],a[1],a[2]) + "\t\t" + str(isFixedInI) + "\t\t" + str(isFixedInG) + "\t\t" + solution)
+	#print("(%d,%d,%d)" % (a[0],a[1],a[2]) + "\t\t" + str(isFixedInI) + "\t\t" + str(isFixedInG) + "\t\t" + solution)
+	print(f"{point : <20}{isFixedInI : <20}{isFixedInG : <20}{solution: <20}")
 
 def exists(list,w):
 	for i in list:
@@ -153,8 +159,7 @@ def main(argv):
 	else:
 		S = findWindmills(num)
 		length = len(S)
-		print("S contains " + str(len(S)) + " windmills")
-		printHeader(num)
+		printHeader(num,length)
 		for w in S:
 			printWindmill(w)
 
