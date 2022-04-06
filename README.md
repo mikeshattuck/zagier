@@ -6,6 +6,7 @@ To use this program, from the command line enter: python zagier.py <number>
   
 Example input & output:
   
+(Note please look at the raw file to see proper formatting!)
   
 > python zagier.py 997  
   
