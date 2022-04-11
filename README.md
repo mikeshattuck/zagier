@@ -8,7 +8,7 @@ Example input & output:
   
 (Note please look at the raw file to see proper formatting!)
   
-> python zagier.py 997  
+> python3 zagier.py 997  
   
   Solution Set S for 997 = x^2 + 4yz contains 61 windmills  
 (x,y,z)             Fixed by I          Fixed by G          Solution  
